@@ -1,9 +1,11 @@
 #table .thead .tr .th,
 #table .tbody .tr .td,
 #table .tbody .tr .td-host::shadow .td,
-#tableHeader, #tableFooter {
+#tableHeader,
+#tableFooter {
   padding-top: 18px;
-  padding-bottom: 11px; /* -1px because of the border */
+  padding-bottom: 11px;
+  /* -1px because of the border */
 }
 
 #table .thead .tr .th {
@@ -20,17 +22,17 @@
 
 #table .thead .tr .th,
 #table .tbody .tr .td {
-  padding-right: 56px;
+  padding-right: 15px;
 }
 
 #table .thead .tr .th:first-of-type,
 #table .tbody .tr .td:first-of-type {
-  padding-left: 24px;
+  padding-left: 15px;
 }
 
 #table .thead .tr .th:last-of-type,
 #table .tbody .tr .td:last-of-type {
-  padding-right: 24px;
+  padding-right: 15px;
 }
 
 #table .thead .tr .th {
@@ -76,9 +78,7 @@
 }
 
 #table .thead .tr .th.sorted-ascending .sorted-ascending,
-#table .thead .tr .th.sorted-descending .sorted-descending {
-
-}
+#table .thead .tr .th.sorted-descending .sorted-descending {}
 
 #table .tbody .tr {
   border-top: 1px solid rgba(0, 0, 0, .22);
