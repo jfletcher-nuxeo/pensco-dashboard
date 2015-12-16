@@ -15,6 +15,7 @@ Contributors:
   Nelson Silva <nsilva@nuxeo.com>
   Josh Fletcher <jfletcher@nuxeo.com>
 -->
+<link rel="import" href="../nuxeo-elements/nuxeo-page-provider.html">
 <!--
 An element for listing the names of files and some sort of aggregate count.
 I'm not sure how I could parameterize the property to get the file name
@@ -36,6 +37,7 @@ Example:
 
   <template>
 
+    <!-- Headers -->
     <div id="table">
       <div class="thead">
         <div class="tr horizontal layout">
@@ -47,14 +49,19 @@ Example:
         </div>
       </div>
 
+      <!-- Get documents -->
+      <nuxeo-page-provider auto page-size="7" query="[[_query(data)]]" current-page="{{topDownloadedDocs}}">
+      </nuxeo-page-provider>
+
+      <!-- Display data -->
       <div class="tbody">
-        <template is="dom-repeat" items="{{data}}" as="auditDocInfo">
+        <template is="dom-repeat" items="{{topDownloadedDocs}}" as="downloadedDoc">
           <div class="tr horizontal layout" index="[[index]]">
             <div class="flex td">
-              <span>[[_title(auditDocInfo.key)]]</span>
+              <span>[[downloadedDoc.title]]</span>
             </div>
             <div class="flex td">
-              <span>[[auditDocInfo.value]]</span>
+              <span>[[_numberOfDownloads(downloadedDoc)]]</span>
             </div>
           </div>
         </template>
@@ -73,10 +80,6 @@ Example:
           type: Array,
           notify: true
         },
-        repoData: {
-          type: Array,
-          notify: true
-        },
         columns: {
           type: Array,
           notify: true,
@@ -86,17 +89,17 @@ Example:
         }
       },
 
-
-
-      _title: function (docUUID) {
-        if (this.repoData.length > 0) {
-          var title = this.repoData.find(function (entry) {
-            return entry.uid === docUUID;
-          }).title;
-          return title;
+      // Convert document UUID's into an NXL query.
+      _query: function (entries) {
+        if (entries.length > 0) {
+          var values = entries.map(function (entry) {
+            return "'" + entry.key + "'";
+          }).join(",");
+          return "select * from Document WHERE ecm:uuid IN (" + values + ")";
         }
       },
 
+      // Given a Document, locate the number of downloads that was provided with the audit data.
       _numberOfDownloads: function (doc) {
         var count = this.data.find(function (entry) {
           return entry.key === doc.uid;
