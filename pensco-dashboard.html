@@ -18,7 +18,6 @@ Contributors:
 <link rel="import" href="../paper-card/paper-card.html">
 <link rel="import" href="../iron-icons/image-icons.html">
 <link rel="import" href="../google-chart/google-chart.html">
-<link rel="import" href="../nuxeo-elements/nuxeo-page-provider.html">
 <link rel="import" href="../nuxeo-dataviz-elements/nuxeo-dataviz-elements.html">
 <link rel="import" href="../nuxeo-dataviz-elements/nuxeo-audit-data.html">
 <link rel="import" href="../nuxeo-util-mimetypes/nuxeo-util-mimetypes.html">
@@ -45,20 +44,12 @@ Example:
 
     <!-- Top downloads --------------------------------------------------->
     <!-- Get audit data -->
-    <nuxeo-audit-data event-id="download" where='[{"term": {"downloadReason": "download"}},{"term": {"blobXPath": "blobholder:0"}}]' grouped-by="docUUID" group-limit=[[7]] start-date="[[startDate]]" end-date="[[endDate]]" data="{{downloads}}">
+    <nuxeo-audit-data event-id="download" where='[{"term": {"downloadReason": "download"}},{"term": {"blobXPath": "blobholder:0"}}]' grouped-by="docUUID" group-limit="[[7]]" start-date="[[startDate]]" end-date="[[endDate]]" data="{{downloads}}">
     </nuxeo-audit-data>
 
-    <!-- Get documents -->
-    <nuxeo-page-provider auto="true" page-size="7" query="[[_query(downloads)]]" current-page="{{_copy(topDownloadedDocs)}}">
-    </nuxeo-page-provider>
-
-    <!-- Need to figure out a way to combine the audit data with repo data and then pass it to the table -->
-
-    <span>[[_debug(topDownloadedDocs)]]</span>
-
     <paper-card heading="Top Downloads" elevation="2">
-      <div class="card-content-table">
-        <nuxeo-dam-dashboard-downloads-table columns='[{"key": "key", "title": "File"}, {"key": "value", "title": "Downloads"}]' data="[[_table(downloads)]]" repo-data="[[topDownloadedDocs]]">
+      <div class="card-content">
+        <nuxeo-dam-dashboard-downloads-table columns='[{"key": "key", "title": "File"}, {"key": "value", "title": "Downloads"}]' data="[[_table(downloads)]]">
         </nuxeo-dam-dashboard-downloads-table>
       </div>
     </paper-card>
@@ -302,15 +293,6 @@ Example:
         }
       }
       return this._rows(data);
-    },
-
-    _query: function (entries) {
-      if (entries.length > 0) {
-        var values = entries.map(function (entry) {
-          return "'" + entry.key + "'";
-        }).join(",");
-        return "select * from Document WHERE ecm:uuid IN (" + values + ")";
-      }
     },
 
     _debug: function (data) {
