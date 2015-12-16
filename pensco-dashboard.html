@@ -64,7 +64,7 @@ Example:
          "Video", and "File". But I can't do that the way nuxeo-repository-data
          is implemented because it only does a single "must" predicate; it's
          an AND for all terms. -->
-    <nuxeo-repository-data grouped-by="dc:lastContributor" data="{{topContributors}}">
+    <nuxeo-repository-data grouped-by="dc:lastContributor" data="{{topContributors}}" start-date="[[startDate]]" end-date="[[endDate]]">
     </nuxeo-repository-data>
 
     <paper-card heading="Top Contributors" elevation="2">
