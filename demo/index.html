@@ -92,7 +92,7 @@ Contributors:
   <script>
     var t = document.querySelector('template');
     var currentDate = moment();
-    t.endDate = currentDate.format("YYYY-MM-DD");
+    t.endDate = currentDate.add(1, 'day').format("YYYY-MM-DD");
     t.startDate = currentDate.subtract(6, 'months').format("YYYY-MM-DD");
   </script>
 

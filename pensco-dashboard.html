@@ -15,12 +15,14 @@ Contributors:
   Josh Fletcher <jfletcher@nuxeo.com>
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../google-chart/google-chart.html">
 <link rel="import" href="../paper-card/paper-card.html">
-<link rel="import" href="../paper-material/paper-material.html">
-<link rel="import" href="../nuxeo-dataviz-elements/nuxeo-dataviz-elements.html">
 <link rel="import" href="../iron-icons/image-icons.html">
-
+<link rel="import" href="../google-chart/google-chart.html">
+<link rel="import" href="../nuxeo-elements/nuxeo-page-provider.html">
+<link rel="import" href="../nuxeo-dataviz-elements/nuxeo-dataviz-elements.html">
+<link rel="import" href="../nuxeo-dataviz-elements/nuxeo-audit-data.html">
+<link rel="import" href="../nuxeo-util-mimetypes/nuxeo-util-mimetypes.html">
+<link rel="import" href="nuxeo-dam-dashboard-downloads-table.html">
 <!--
 An element providing a dashboard for the Pensco demo.
 
@@ -42,11 +44,21 @@ Example:
   <template>
 
     <!-- Top downloads --------------------------------------------------->
-    <nuxeo-audit-data event-id="download" where='[{"term": {"downloadReason": "download"}},{"term": {"blobXPath": "blobholder:0"}}]' grouped-by="docUUID" group-limit="7" start-date="[[startDate]]" end-date="[[endDate]]" data="{{downloads}}">
+    <!-- Get audit data -->
+    <nuxeo-audit-data event-id="download" where='[{"term": {"downloadReason": "download"}},{"term": {"blobXPath": "blobholder:0"}}]' grouped-by="docUUID" group-limit=[[7]] start-date="[[startDate]]" end-date="[[endDate]]" data="{{downloads}}">
     </nuxeo-audit-data>
+
+    <!-- Get documents -->
+    <nuxeo-page-provider auto="true" page-size="7" query="[[_query(downloads)]]" current-page="{{_copy(topDownloadedDocs)}}">
+    </nuxeo-page-provider>
+
+    <!-- Need to figure out a way to combine the audit data with repo data and then pass it to the table -->
+
+    <span>[[_debug(topDownloadedDocs)]]</span>
+
     <paper-card heading="Top Downloads" elevation="2">
-      <div class="card-content">
-        <nuxeo-dam-dashboard-downloads-table columns='[{"key": "key", "title": "File"}, {"key": "value", "title": "Downloads"}]' data="[[_table(downloads)]]">
+      <div class="card-content-table">
+        <nuxeo-dam-dashboard-downloads-table columns='[{"key": "key", "title": "File"}, {"key": "value", "title": "Downloads"}]' data="[[_table(downloads)]]" repo-data="[[topDownloadedDocs]]">
         </nuxeo-dam-dashboard-downloads-table>
       </div>
     </paper-card>
@@ -255,6 +267,54 @@ Example:
         res.push([key, "All", parents[key]]);
       }
       return res;
+    },
+
+    _table: function (data) {
+      return data.map(function (e) {
+        return {
+          key: e.key,
+          value: e.value
+        };
+      }.bind(this));
+    },
+
+    // Convert the MIME Type so something more friendly for the user.
+    _convertMimeType: function (mimeType, friendly) {
+      var mimeTypeLookup = document.createElement('nuxeo-util-mimetypes');
+      mimeTypeLookup.mimeType = mimeType;
+      mimeTypeLookup.friendly = friendly;
+      return mimeTypeLookup._query();
+    },
+
+    // Instead of just returning the rows (using _rows), convert the MIME Types to something more friendly.
+    _prettyRows: function (data) {
+      for (var i = 0; i < data.length; i++) {
+        var mimeType = data[i].key;
+        //     <nuxeo-util-mimetypes mime-type="application/pdf" data="{{pdfExts}}"></nuxeo-util-mimetypes>
+        var friendlyName = this._convertMimeType(mimeType, 'true')
+        if (friendlyName) {
+          data[i].key = friendlyName;
+        } else {
+          var fileExts = this._convertMimeType(mimeType);
+          if (fileExts) {
+            data[i].key = fileExts;
+          }
+        }
+      }
+      return this._rows(data);
+    },
+
+    _query: function (entries) {
+      if (entries.length > 0) {
+        var values = entries.map(function (entry) {
+          return "'" + entry.key + "'";
+        }).join(",");
+        return "select * from Document WHERE ecm:uuid IN (" + values + ")";
+      }
+    },
+
+    _debug: function (data) {
+      debugger;
     }
   });
 </script>
