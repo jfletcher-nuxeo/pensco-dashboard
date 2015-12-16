@@ -58,7 +58,7 @@ Example:
         <template is="dom-repeat" items="{{topDownloadedDocs}}" as="downloadedDoc" sort="_sortDocs">
           <div class="tr horizontal layout" index="[[index]]">
             <div class="flex td">
-              <span>[[downloadedDoc.title]]</span>
+              <span>[[_getName(downloadedDoc)]]</span>
             </div>
             <div class="flex td">
               <span>[[_numberOfDownloads(downloadedDoc)]]</span>
@@ -97,6 +97,14 @@ Example:
           }).join(",");
           return "select * from Document WHERE ecm:uuid IN (" + values + ")";
         }
+      },
+
+      // Some Document types have a binary with a name, others don't, so use the Title.
+      _getName: function (doc) {
+        if (doc.properties["file:content"]) {
+          return doc.properties["file:content"].name;
+        }
+        return doc.title;
       },
 
       // Given a Document, locate the number of downloads that was provided with the audit data.
