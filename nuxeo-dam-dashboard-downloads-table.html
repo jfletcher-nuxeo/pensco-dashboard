@@ -55,7 +55,7 @@ Example:
 
       <!-- Display data -->
       <div class="tbody">
-        <template is="dom-repeat" items="{{topDownloadedDocs}}" as="downloadedDoc">
+        <template is="dom-repeat" items="{{topDownloadedDocs}}" as="downloadedDoc" sort="_sortDocs">
           <div class="tr horizontal layout" index="[[index]]">
             <div class="flex td">
               <span>[[downloadedDoc.title]]</span>
@@ -105,6 +105,18 @@ Example:
           return entry.key === doc.uid;
         }).value;
         return count;
+      },
+
+      // Sort based on number of downloads.
+      _sortDocs: function (a, b) {
+        if (this._numberOfDownloads(a) > this._numberOfDownloads(b)) {
+          return -1;
+        }
+        if (this._numberOfDownloads(a) < this._numberOfDownloads(b)) {
+          return 1;
+        }
+        // a must be equal to b
+        return 0;
       },
 
       _debug: function (data) {
