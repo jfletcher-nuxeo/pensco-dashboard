@@ -52,7 +52,7 @@ Example:
       </div>
 
       <!-- Get documents -->
-      <nuxeo-page-provider auto page-size="7" query="[[_query(data)]]" current-page="{{topDownloadedDocs}}">
+      <nuxeo-page-provider auto page-size="7" query="[[_docUUIDsQuery]]" current-page="{{topDownloadedDocs}}">
       </nuxeo-page-provider>
 
       <!-- Display data -->
@@ -91,13 +91,23 @@ Example:
         }
       },
 
+      observers: [
+      '_recomputeQuery(data)'
+      ],
+
+      _recomputeQuery: function () {
+        this._docUUIDsQuery = this._convertUUIDsToQuery(this.data);
+      },
+
       // Convert document UUID's into an NXL query.
-      _query: function (entries) {
+      _convertUUIDsToQuery: function (entries) {
         if (entries.length > 0) {
           var values = entries.map(function (entry) {
             return "'" + entry.key + "'";
           }).join(",");
           return "select * from Document WHERE ecm:uuid IN (" + values + ")";
+        } else {
+          return "select * from Document WHERE ecm:uuid = '0'";
         }
       },
 
@@ -109,7 +119,7 @@ Example:
         return doc.title;
       },
 
-      // Given a Document, locate the number of downloads that was provided with the audit data.
+      // Given a Document, locate the number of downloads; it was provided with the audit data.
       _numberOfDownloads: function (doc) {
         var count = this.data.find(function (entry) {
           return entry.key === doc.uid;
